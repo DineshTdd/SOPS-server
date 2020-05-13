@@ -74,8 +74,13 @@ userSchema.methods.generateAuthToken = async function () {
       { _id: user._id.toString(), name: user.username.toString() },
       process.env.JWT_SECRET
     );
-    user.tokens = user.tokens.concat({ token });
-    await user.save();
+    await User.updateOne(
+      { _id: user._id },
+      { $set: { tokens: await user.tokens.concat({ token }) } }
+    ).catch((err) => {
+      console.log(err);
+      throw err;
+    });
     return token;
   } catch (err) {
     throw err;

@@ -47,13 +47,22 @@ exports.userLogin = ({ email, password }) => {
   return new Promise((resolve, reject) => {
     try {
       let login = async () => {
-        const user = await User.findByCredentials(email, password);
-        const token = await user.generateAuthToken();
-        resolve({ status: 200, result: { user, token } });
+        const user = await User.findByCredentials(email, password).catch((err) => {
+          return reject({ status: 500, error: err });
+        });
+        const token = await new Promise((resolve) => {
+          return user
+            .generateAuthToken()
+            .then((tok) => resolve(tok))
+            .catch((err) => {
+              return reject({ status: 500, error: err });
+            });
+        });
+        return resolve({ status: 200, result: { user, token } });
       };
-      login();
+      return login();
     } catch (err) {
-      reject({ status: 500, error: "Email or password may be wrong!", err });
+      return reject({ status: 500, error: "Email or password may be wrong!", err });
     }
   });
 };

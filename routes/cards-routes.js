@@ -6,7 +6,12 @@ const User = require("../models/user");
 const router = new express.Router();
 
 // Get All the card details
-router.get("/", auth, (req, res) => fetchCardDetails(req, res));
+router.get("/", auth, (req, res) =>
+  fetchCardDetails(req.user).then(
+    (result) => res.status(200).json(result),
+    (err) => res.status(500).json(err)
+  )
+);
 
 // Add new card
 router.post("/new", auth, (req, res) => {

@@ -5,14 +5,19 @@ const steggy = require("steggy");
 const fs = require("fs");
 const { randomBytes } = require("crypto");
 
-exports.fetchCardDetails = async (req, res) => {
-  try {
-    await req.user.populate("cards").execPopulate();
-    console.log(req.user.cards);
-    res.send(req.user.cards);
-  } catch (e) {
-    res.status(500).send(e);
-  }
+exports.fetchCardDetails = (user) => {
+  return new Promise((resolve, reject) => {
+    const fetch = async () => {
+      try {
+        await user.populate("cards").execPopulate();
+        console.log(user.cards);
+        resolve({ status: 200, result: user.cards });
+      } catch (err) {
+        reject({ status: 500, err });
+      }
+    };
+    fetch();
+  });
 };
 
 exports.addNewCard = async (
@@ -31,7 +36,7 @@ exports.addNewCard = async (
       card_holder_name,
       expiry_month,
       expiry_year,
-      cvv
+      cvv,
     };
     var encrypted = CryptoJS.TripleDES.encrypt(JSON.stringify(data), privateKey);
     var encryptedCard = encrypted.toString();
@@ -57,7 +62,7 @@ exports.addNewCard = async (
       card_details_private_key: privateKey,
       card_details_user_snap: storeDetails,
       passphrase,
-      owner
+      owner,
     });
     const original = fs.readFileSync(__dirname + "/input.png");
     const concealed = steggy.conceal()(original, sendDetails);

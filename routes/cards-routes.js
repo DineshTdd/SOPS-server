@@ -1,5 +1,6 @@
 const express = require("express");
 const auth = require("../middlewares/auth");
+const { celebrate, errors, Joi } = require("celebrate");
 const multerConfig = require("../middlewares/multer").multerConfig;
 const { fetchCardDetails, addNewCard, createSnapshot } = require("../controllers/card");
 const User = require("../models/user");
@@ -14,21 +15,37 @@ router.get("/", auth, (req, res) =>
 );
 
 // Add new card
-router.post("/new", auth, (req, res) => {
-  return addNewCard(
-    {
-      card_name: req.body.cardname,
-      card_number: req.body.cardnumber,
-      card_holder_name: req.body.cardholdername,
-      expiry_month: req.body.mon,
-      expiry_year: req.body.year,
-      cvv: req.body.cvv,
-      passphrase: req.body.passphrase,
-      owner: req.user._id,
-    },
-    res
-  );
-});
+router.post(
+  "/new",
+  auth,
+  celebrate({
+    body: Joi.object()
+      .keys({
+        cardName: Joi.string().required().min(2).max(26),
+        cardHolder: Joi.string().required().min(2).max(2),
+        cardNumber: Joi.string().required().length(16),
+        cardExpiryMonth: Joi.string().required().length(2),
+        cardExpiryYear: Joi.string().required().length(2),
+        cardCVV: Joi.string().required().length(3),
+      })
+      .required(),
+  }),
+  errors(),
+  (req, res) => {
+    return addNewCard(
+      {
+        card_name: req.body.cardName,
+        card_number: req.body.cardNumber,
+        card_holder_name: req.body.cardHoldername,
+        expiry_month: req.body.cardExpiryMonth,
+        expiry_year: req.body.cardExpiryYear,
+        cvv: req.body.cardCVV,
+        owner: req.user._id,
+      },
+      res
+    );
+  }
+);
 
 router.post(
   "/checkout",

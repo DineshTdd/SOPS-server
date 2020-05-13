@@ -21,7 +21,7 @@ exports.fetchCardDetails = (user) => {
 };
 
 exports.addNewCard = async (
-  { card_name, card_number, card_holder_name, expiry_month, expiry_year, cvv, passphrase, owner },
+  { card_name, card_number, card_holder_name, expiry_month, expiry_year, cvv, owner },
   res
 ) => {
   try {

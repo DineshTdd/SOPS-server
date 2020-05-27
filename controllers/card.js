@@ -5,8 +5,8 @@ const steggy = require('steggy');
 const fs = require('fs');
 const { randomBytes } = require('crypto');
 const cryptoRandomString = require('crypto-random-string');
-// import email service for sending passphrasee
 
+// import email service for sending passphrasee
 const { sendPassphrase } = require('../services/email');
 
 exports.fetchCardDetails = (user) => {

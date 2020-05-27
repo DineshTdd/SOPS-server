@@ -35,6 +35,26 @@ const userSchema = new mongoose.Schema(
         }
       },
     },
+    isActive: {
+      type: Boolean,
+      default: null,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    previousPasswordChange: {
+      type: Date,
+      required: false,
+    },
+    inviteToken: {
+      type: String,
+      required: false,
+    },
+    resetPasswordToken: {
+      type: String,
+      required: false,
+    },
     tokens: [
       {
         token: {

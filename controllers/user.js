@@ -20,7 +20,8 @@ exports.userRegister = (userData) => {
                     },
                   ),
                 );
-                resolve({ user, token });
+
+                resolve({ user });
               },
               (err) => {
                 reject({ status: 500, message: 'User creation failed!', err });

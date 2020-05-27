@@ -1,5 +1,5 @@
-const sharp = require("sharp");
-const User = require("../models/user");
+// const sharp = require("sharp");
+const User = require('../models/user');
 
 exports.userRegister = (userData) => {
   return new Promise((resolve, reject) => {
@@ -16,15 +16,15 @@ exports.userRegister = (userData) => {
                     async (err) => {
                       console.log(err);
                       await newUser.remove();
-                      reject({ status: 500, message: "User creation failed!", err });
-                    }
-                  )
+                      reject({ status: 500, message: 'User creation failed!', err });
+                    },
+                  ),
                 );
                 resolve({ user, token });
               },
               (err) => {
-                reject({ status: 500, message: "User creation failed!", err });
-              }
+                reject({ status: 500, message: 'User creation failed!', err });
+              },
             );
           });
           if (result.user && result.token) {
@@ -62,21 +62,21 @@ exports.userLogin = ({ email, password }) => {
       };
       return login();
     } catch (err) {
-      return reject({ status: 500, error: "Email or password may be wrong!", err });
+      return reject({ status: 500, error: 'Email or password may be wrong!', err });
     }
   });
 };
 
 exports.setAvatar = async (req, res) => {
   try {
-    const buffer = await sharp(req.file.buffer)
-      .resize({
-        width: 250,
-        height: 250,
-      })
-      .png()
-      .toBuffer();
-    req.user.avatar = buffer;
+    // const buffer = await sharp(req.file.buffer)
+    //   .resize({
+    //     width: 250,
+    //     height: 250,
+    //   })
+    //   .png()
+    //   .toBuffer();
+    // req.user.avatar = buffer;
     await req.user.save();
     res.send();
   } catch (e) {
@@ -92,7 +92,7 @@ exports.userLogout = async (req, res) => {
     });
 
     await req.user.save();
-    res.send("Logged out");
+    res.send('Logged out');
   } catch (e) {
     res.status(500).send(e);
   }

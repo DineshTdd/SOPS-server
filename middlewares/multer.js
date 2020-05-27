@@ -1,4 +1,4 @@
-const multer = require("multer");
+const multer = require('multer');
 
 let config = {};
 
@@ -10,7 +10,7 @@ config.multerConfig = multer({
   },
   fileFilter(req, file, callback) {
     if (!file.originalname.toLowerCase().match(/\.(jpg|jpeg|png)$/)) {
-      return callback(new Error("Please upload an image!"));
+      return callback(new Error('Please upload an image!'));
     }
     callback(undefined, true);
   },

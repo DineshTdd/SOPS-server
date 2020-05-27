@@ -1,8 +1,8 @@
-const mongoose = require("mongoose");
-const validator = require("validator");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const Cards = require("./card_details");
+const mongoose = require('mongoose');
+const validator = require('validator');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const Cards = require('./card_details');
 
 const userSchema = new mongoose.Schema(
   {
@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       validate(value) {
         if (!validator.isEmail(value)) {
-          throw new Error("Email should be a valid address!");
+          throw new Error('Email should be a valid address!');
         }
       },
     },
@@ -28,9 +28,9 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      minlength: 6,
+      // minlength: 6,
       validate(value) {
-        if (value.toLowerCase().includes("password")) {
+        if (value.toLowerCase().includes('password')) {
           throw new Error("Your password can't be a password!");
         }
       },
@@ -49,13 +49,13 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-userSchema.virtual("cards", {
-  ref: "Cards",
-  localField: "_id",
-  foreignField: "owner",
+userSchema.virtual('cards', {
+  ref: 'Cards',
+  localField: '_id',
+  foreignField: 'owner',
 });
 
 userSchema.methods.toJSON = function () {
@@ -72,11 +72,11 @@ userSchema.methods.generateAuthToken = async function () {
     const user = this;
     const token = jwt.sign(
       { _id: user._id.toString(), name: user.username.toString() },
-      process.env.JWT_SECRET
+      process.env.JWT_SECRET,
     );
     await User.updateOne(
       { _id: user._id },
-      { $set: { tokens: await user.tokens.concat({ token }) } }
+      { $set: { tokens: await user.tokens.concat({ token }) } },
     ).catch((err) => {
       console.log(err);
       throw err;
@@ -90,29 +90,29 @@ userSchema.methods.generateAuthToken = async function () {
 userSchema.statics.findByCredentials = async (email, password) => {
   var user = await User.findOne({ email });
   if (!user) {
-    throw new Error("Check the credentials!");
+    throw new Error('Check the credentials!');
   }
   const isValid = await bcrypt.compare(password, user.password);
   if (!isValid) {
-    throw new Error("Check the credentials");
+    throw new Error('Check the credentials');
   }
   return user;
 };
 
-userSchema.pre("save", async function (next) {
+userSchema.pre('save', async function (next) {
   const user = this;
-  if (user.isModified("password")) {
+  if (user.isModified('password')) {
     user.password = await bcrypt.hash(user.password, 8);
   }
   next();
 });
 
-userSchema.pre("remove", async function (next) {
+userSchema.pre('remove', async function (next) {
   const user = this;
   await Cards.deleteMany({ owner: user._id });
   next();
 });
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model('User', userSchema);
 
 module.exports = User;

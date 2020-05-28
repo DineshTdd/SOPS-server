@@ -75,10 +75,10 @@ exports.addNewCard = async (
     fs.writeFileSync(__dirname + '/result.png', concealed);
     const image = fs.readFileSync(__dirname + '/result.png');
     const revealed = steggy.reveal()(image);
-    console.log('Send Details: ', revealed.toString());
+    // console.log('Send Details: ', revealed.toString());
     // console.log(JSON.parse(key.decrypt(storeDetails + revealed.toString(), 'utf8')));
     await card.save();
-    console.log(card);
+    // console.log(card);
 
     const sendPassphraseObject = { email, passphrase, cardName: card_name };
     sendPassphrase(sendPassphraseObject);

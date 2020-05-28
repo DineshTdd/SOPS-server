@@ -1,21 +1,36 @@
 const nodemailer = require('nodemailer');
+const { google } = require('googleapis');
+
+const OAuth2 = google.auth.OAuth2;
+const oauth2Client = new OAuth2(
+  process.env.GOOGLE_OAUTH2_CLIENT_ID, // ClientID
+  process.env.GOOGLE_OAUTH2_SECRET_KEY, // Client Secret
+  'https://developers.google.com/oauthplayground', // Redirect URL
+);
+
+oauth2Client.setCredentials({
+  refresh_token: process.env.REFRESH_TOKEN,
+});
+
+// Storing accessToken
+const accessToken = oauth2Client.getAccessToken();
 
 // Sending passphrase to the email
 const sendPassphrase = ({ email, passphrase, cardName }) => {
   var transporter = nodemailer.createTransport({
-    // service: 'gmail',
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
+    service: 'gmail',
     auth: {
-      user: 'd2kdevelopers@gmail.com', // here use your real email
-      pass: 'tdkisidhiva', // put your password correctly (not in this question please)
+      type: 'OAuth2',
+      user: process.env.SERVER_GMAIL_ADDRESS,
+      clientId: process.env.GOOGLE_OAUTH2_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_OAUTH2_SECRET_KEY,
+      refreshToken: process.env.REFRESH_TOKEN,
+      accessToken,
     },
   });
-  console.log(email);
 
   const mailOptions = {
-    from: '"D2K Developers" - d2kdevelopers@gmail.com',
+    from: `"D2K Developers" - ${process.env.SERVER_GMAIL_ADDRESS}`,
     to: email,
     subject: 'Generated passphrase - reg.',
     text: `Passphrase for your card - ${cardName} is generated.

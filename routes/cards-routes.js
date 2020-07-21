@@ -1,22 +1,26 @@
-const express = require('express');
-const auth = require('../middlewares/auth');
-const { celebrate, errors, Joi } = require('celebrate');
-const multerConfig = require('../middlewares/multer').multerConfig;
-const { fetchCardDetails, addNewCard, createSnapshot } = require('../controllers/card');
-const User = require('../models/user');
+const express = require("express");
+const auth = require("../middlewares/auth");
+const { celebrate, errors, Joi } = require("celebrate");
+const multerConfig = require("../middlewares/multer").multerConfig;
+const {
+  fetchCardDetails,
+  addNewCard,
+  createSnapshot,
+} = require("../controllers/card");
+const User = require("../models/user");
 const router = new express.Router();
 
 // Get All the card details
-router.get('/', auth, (req, res) =>
+router.get("/", auth, (req, res) =>
   fetchCardDetails(req.user).then(
     (result) => res.status(200).json(result),
-    (err) => res.status(500).json(err),
-  ),
+    (err) => res.status(500).json(err)
+  )
 );
 
 // Add new card
 router.post(
-  '/new',
+  "/new",
   auth,
   celebrate({
     body: Joi.object()
@@ -43,19 +47,19 @@ router.post(
         cvv: req.body.cardCVV,
         owner: req.user._id,
       },
-      res,
+      res
     );
-  },
+  }
 );
 
 router.post(
-  '/checkout',
+  "/checkout",
   auth,
-  multerConfig.single('snapshot'),
+  multerConfig.single("snapshot"),
   (req, res) => createSnapshot(req, res),
   (error, req, res, next) => {
     res.send(error);
-  },
+  }
 );
 
 module.exports = router;

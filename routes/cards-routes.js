@@ -2,7 +2,11 @@ const express = require("express");
 const auth = require("../middlewares/auth");
 const { celebrate, errors, Joi } = require("celebrate");
 const multerConfig = require("../middlewares/multer").multerConfig;
-const { fetchCardDetails, addNewCard, createSnapshot } = require("../controllers/card");
+const {
+  fetchCardDetails,
+  addNewCard,
+  createSnapshot,
+} = require("../controllers/card");
 const User = require("../models/user");
 const router = new express.Router();
 
@@ -22,7 +26,7 @@ router.post(
     body: Joi.object()
       .keys({
         cardName: Joi.string().required().min(2).max(26),
-        cardHolder: Joi.string().required().min(2).max(2),
+        cardHoldername: Joi.string().required().min(2).max(20),
         cardNumber: Joi.string().required().length(16),
         cardExpiryMonth: Joi.string().required().length(2),
         cardExpiryYear: Joi.string().required().length(2),
@@ -34,6 +38,7 @@ router.post(
   (req, res) => {
     return addNewCard(
       {
+        email: req.user.email,
         card_name: req.body.cardName,
         card_number: req.body.cardNumber,
         card_holder_name: req.body.cardHoldername,

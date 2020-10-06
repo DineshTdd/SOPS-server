@@ -4,6 +4,10 @@ const CryptoJS = require("crypto-js");
 const steggy = require("steggy");
 const fs = require("fs");
 const { randomBytes } = require("crypto");
+const cryptoRandomString = require("crypto-random-string");
+
+// import email service for sending passphrasee
+const { sendPassphrase } = require("../services/email");
 
 exports.fetchCardDetails = (user) => {
   return new Promise((resolve, reject) => {
@@ -21,16 +25,23 @@ exports.fetchCardDetails = (user) => {
 };
 
 exports.addNewCard = async (
-  { card_name, card_number, card_holder_name, expiry_month, expiry_year, cvv, owner },
+  {
+    email,
+    card_name,
+    card_number,
+    card_holder_name,
+    expiry_month,
+    expiry_year,
+    cvv,
+    owner,
+  },
   res
 ) => {
   try {
     const key = new NodeRSA({ b: 1024 });
     const text = randomBytes(256).toString();
     const privateKey = key.encrypt(text, "base64");
-    //   console.log("encrypted: ", privateKey);
-    const decryptedKey = key.decrypt(privateKey, "utf8");
-    //   console.log("decrypted: ", decryptedKey);
+    // const decryptedKey = key.decrypt(privateKey, "utf8");
     var data = {
       card_number,
       card_holder_name,
@@ -38,7 +49,13 @@ exports.addNewCard = async (
       expiry_year,
       cvv,
     };
-    var encrypted = CryptoJS.TripleDES.encrypt(JSON.stringify(data), privateKey);
+    // var passphrase = Math.random().toString(36).slice(-8);
+    var passphrase = cryptoRandomString({ length: 10, type: "base64" });
+    console.log(passphrase);
+    var encrypted = CryptoJS.TripleDES.encrypt(
+      JSON.stringify(data),
+      privateKey
+    );
     var encryptedCard = encrypted.toString();
 
     // var encryptedCard = key.encrypt(JSON.stringify(data), "base64");
@@ -64,14 +81,19 @@ exports.addNewCard = async (
       passphrase,
       owner,
     });
+
     const original = fs.readFileSync(__dirname + "/input.png");
     const concealed = steggy.conceal()(original, sendDetails);
     fs.writeFileSync(__dirname + "/result.png", concealed);
     const image = fs.readFileSync(__dirname + "/result.png");
     const revealed = steggy.reveal()(image);
-    //   console.log("Send Details: ", revealed.toString());
+    // console.log('Send Details: ', revealed.toString());
     // console.log(JSON.parse(key.decrypt(storeDetails + revealed.toString(), 'utf8')));
     await card.save();
+    // console.log(card);
+
+    const sendPassphraseObject = { email, passphrase, cardName: card_name };
+    sendPassphrase(sendPassphraseObject);
     res.status(201).send(card);
   } catch (e) {
     res.status(400).send("Error" + e);

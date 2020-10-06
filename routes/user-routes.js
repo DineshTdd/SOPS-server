@@ -1,5 +1,10 @@
 const express = require("express");
-const { userRegister, userLogin, userLogout, setAvatar } = require("../controllers/user");
+const {
+  userRegister,
+  userLogin,
+  userLogout,
+  setAvatar,
+} = require("../controllers/user");
 const auth = require("../middlewares/auth");
 const multerConfig = require("../middlewares/multer").multerConfig;
 const { celebrate, errors, Joi } = require("celebrate");
